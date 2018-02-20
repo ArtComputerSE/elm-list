@@ -1,15 +1,10 @@
 module Main exposing (..)
 
-{-| An example of a sortable list using drag and drop
-See the README.md file for more information
--}
-
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (class, style)
 import Html.Events exposing (onClick)
 import Mouse
 import Pointer
-import Styles
 
 
 main =
@@ -166,16 +161,16 @@ moveItem fromPos offset list =
 view : Model -> Html Msg
 view model =
     div
-        [ style Styles.pageContainer ]
+        [ class "pageContainer" ]
         [ div
-            [ style Styles.listHeader ]
+            [ class "listHeader" ]
             [ h3
-                [ style Styles.headerTitle ]
+                [ class "headerTitle" ]
                 [ text "Sortable favorite movies" ]
             , toggleButton model
             ]
         , ul
-            [ style Styles.listContainer ]
+            [ class "listContainer" ]
           <|
             List.indexedMap (itemView model) model.data
         ]
@@ -235,8 +230,8 @@ itemView model idx item =
                 Nothing ->
                     []
     in
-    li [ style <| Styles.listItem ++ moveStyle ++ makingWayStyle ]
-        [ div [ style Styles.itemText ] [ text item ]
+    li [ class "listItem", style (moveStyle ++ makingWayStyle) ]
+        [ div [ class "itemText" ] [ text item ]
         , div
             [ style buttonStyle
             , Pointer.onDown (pagePos >> DragStart idx)

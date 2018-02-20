@@ -29,11 +29,12 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    { isReordering = False
-    , data = initialList |> List.sort
-    , drag = Nothing
-    }
-        ! []
+    ( { isReordering = False
+      , data = initialList |> List.sort
+      , drag = Nothing
+      }
+    , Cmd.none
+    )
 
 
 type alias Drag =
@@ -85,39 +86,21 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "Message: " msg of
         ToggleReorder ->
-            { model | isReordering = not model.isReordering } ! []
+            ( { model | isReordering = not model.isReordering }, Cmd.none )
 
         DragStart idx pos ->
-            { model
-                | drag = Just <| Drag idx pos.y pos.y
-            }
-                ! []
+            ( { model | drag = Just <| Drag idx pos.y pos.y }, Cmd.none )
 
         DragAt pos ->
-            { model
-                | drag =
-                    Maybe.map (\{ itemIndex, startY } -> Drag itemIndex startY pos.y) model.drag
-            }
-                ! []
+            ( { model | drag = Maybe.map (\{ itemIndex, startY } -> Drag itemIndex startY pos.y) model.drag }, Cmd.none )
 
         DragEnd pos ->
             case model.drag of
                 Just { itemIndex, startY, currentY } ->
-                    { model
-                        | data =
-                            moveItem
-                                itemIndex
-                                (calculateOffset currentY startY)
-                                model.data
-                        , drag = Nothing
-                    }
-                        ! []
+                    ( { model | data = moveItem itemIndex (calculateOffset currentY startY) model.data, drag = Nothing }, Cmd.none )
 
                 Nothing ->
-                    { model
-                        | drag = Nothing
-                    }
-                        ! []
+                    ( { model | drag = Nothing }, Cmd.none )
 
 
 calculateOffset : Float -> Float -> Int
@@ -169,7 +152,7 @@ view model =
                 [ text "Sortable favorite movies" ]
             , toggleButton model
             ]
-        , ul
+        , div
             [ class "listContainer" ]
           <|
             List.indexedMap (itemView model) model.data
@@ -230,7 +213,7 @@ itemView model idx item =
                 Nothing ->
                     []
     in
-    li [ class "listItem", style (moveStyle ++ makingWayStyle) ]
+    div [ class "listItem", style (moveStyle ++ makingWayStyle) ]
         [ div [ class "itemText" ] [ text item ]
         , div
             [ style buttonStyle

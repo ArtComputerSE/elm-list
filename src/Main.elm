@@ -90,25 +90,22 @@ update msg model =
 
         DragEnd pos ->
             case model.drag of
-                Just { itemIndex, startY, currentY } ->
-                    ( { model | data = moveItem itemIndex (calculateOffset currentY startY) model.data, drag = Nothing }, Cmd.none )
+                Just drag ->
+                    ( { model | data = updateData drag model.data, drag = Nothing }, Cmd.none )
 
                 Nothing ->
                     ( { model | drag = Nothing }, Cmd.none )
 
 
+updateData : Drag -> List a -> List a
+updateData drag data =
+    moveValue drag.itemIndex (calculateOffset drag.currentY drag.startY) data
+
+
 calculateOffset : Float -> Float -> Int
 calculateOffset fCurrentY fStartY =
-    let
-        currentY =
-            round fCurrentY
-
-        startY =
-            round fStartY
-    in
-    (currentY
-        - startY
-        + (if currentY < startY then
+    (distanceMoved fCurrentY fStartY
+        + (if fCurrentY < fStartY then
             -20
            else
             20
@@ -117,8 +114,13 @@ calculateOffset fCurrentY fStartY =
         // 50
 
 
-moveItem : Int -> Int -> List a -> List a
-moveItem fromPos offset list =
+distanceMoved : Float -> Float -> Int
+distanceMoved fCurrentY fSTartY =
+    round fCurrentY - round fSTartY
+
+
+moveValue : Int -> Int -> List a -> List a
+moveValue fromPos offset list =
     let
         listWithoutMoved =
             List.take fromPos list ++ List.drop (fromPos + 1) list
@@ -185,10 +187,10 @@ itemView model idx item =
         makingWayStyle =
             case model.drag of
                 Just { itemIndex, startY, currentY } ->
-                    if (idx < itemIndex) && distance currentY startY < (idx - itemIndex) * 50 + 20 then
+                    if (idx < itemIndex) && distanceMoved currentY startY < (idx - itemIndex) * 50 + 20 then
                         [ ( "transform", "translateY(50px)" )
                         ]
-                    else if (idx > itemIndex) && distance currentY startY > (idx - itemIndex) * 50 - 20 then
+                    else if (idx > itemIndex) && distanceMoved currentY startY > (idx - itemIndex) * 50 - 20 then
                         [ ( "transform", "translateY(-50px)" )
                         ]
                     else
@@ -209,11 +211,6 @@ itemView model idx item =
         [ div [ class "itemText" ]
             [ text item ]
         ]
-
-
-distance : Float -> Float -> Int
-distance fCurrentY fSTartY =
-    round fCurrentY - round fSTartY
 
 
 pagePos : Pointer.Event -> Position

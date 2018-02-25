@@ -76,8 +76,7 @@ type alias Position =
 
 
 type Msg
-    = ToggleReorder
-    | DragStart Int Position
+    = DragStart Int Position
     | DragAt Position
     | DragEnd Position
 
@@ -85,9 +84,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "Message: " msg of
-        ToggleReorder ->
-            ( { model | isReordering = not model.isReordering }, Cmd.none )
-
         DragStart idx pos ->
             ( { model | drag = Just <| Drag idx pos.y pos.y }, Cmd.none )
 
@@ -163,23 +159,17 @@ toggleButton : Model -> Html Msg
 toggleButton model =
     let
         buttonTxt =
-            if model.isReordering then
-                "Reordering"
+            if model.drag == Nothing then
+                ""
             else
-                "Click to reorder"
+                "Reordering"
     in
-    button [ onClick ToggleReorder ] [ text buttonTxt ]
+    span [] [ text buttonTxt ]
 
 
 itemView : Model -> Int -> String -> Html Msg
 itemView model idx item =
     let
-        buttonStyle =
-            if model.isReordering then
-                [ ( "display", "inline-block" ) ]
-            else
-                [ ( "display", "none" ) ]
-
         moveStyle =
             case model.drag of
                 Just { itemIndex, startY, currentY } ->
@@ -213,17 +203,17 @@ itemView model idx item =
                 Nothing ->
                     []
     in
-    div [ class "listItem", style (moveStyle ++ makingWayStyle) ]
-        [ div [ class "itemText" ] [ text item ]
-        , div
-            [ style buttonStyle
-            , Pointer.onDown (pagePos >> DragStart idx)
-            , Pointer.onMove (pagePos >> DragAt)
-            , Pointer.onUp (pagePos >> DragEnd)
-            , Pointer.onLeave (pagePos >> DragEnd)
-            , Html.Attributes.style [ ( "touch-action", "none" ) ]
-            ]
-            [ text "drag" ]
+    div
+        [ class "listItem"
+        , style (moveStyle ++ makingWayStyle)
+        , Pointer.onDown (pagePos >> DragStart idx)
+        , Pointer.onMove (pagePos >> DragAt)
+        , Pointer.onUp (pagePos >> DragEnd)
+        , Pointer.onLeave (pagePos >> DragEnd)
+        , Html.Attributes.style [ ( "touch-action", "none" ) ]
+        ]
+        [ div [ class "itemText" ]
+            [ text item ]
         ]
 
 

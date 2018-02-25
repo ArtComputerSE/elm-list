@@ -220,6 +220,7 @@ itemView model idx item =
             , Pointer.onDown (pagePos >> DragStart idx)
             , Pointer.onMove (pagePos >> DragAt)
             , Pointer.onUp (pagePos >> DragEnd)
+            , Pointer.onLeave (pagePos >> DragEnd)
             , Html.Attributes.style [ ( "touch-action", "none" ) ]
             ]
             [ text "drag" ]

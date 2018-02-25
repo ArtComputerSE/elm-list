@@ -21,16 +21,14 @@ main =
 
 
 type alias Model =
-    { isReordering : Bool
-    , data : List String
+    { data : List String
     , drag : Maybe Drag
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { isReordering = False
-      , data = initialList |> List.sort
+    ( { data = initialList |> List.sort
       , drag = Nothing
       }
     , Cmd.none

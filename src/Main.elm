@@ -189,14 +189,10 @@ itemView model idx item =
                 Just { itemIndex, startY, currentY } ->
                     if (idx < itemIndex) && distance currentY startY < (idx - itemIndex) * 50 + 20 then
                         [ ( "transform", "translateY(50px)" )
-                        , ( "transition", "transform 200ms ease-in-out" )
                         ]
                     else if (idx > itemIndex) && distance currentY startY > (idx - itemIndex) * 50 - 20 then
                         [ ( "transform", "translateY(-50px)" )
-                        , ( "transition", "transform 200ms ease-in-out" )
                         ]
-                    else if idx /= itemIndex then
-                        [ ( "transition", "transform 200ms ease-in-out" ) ]
                     else
                         []
 

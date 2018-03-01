@@ -46,17 +46,12 @@ update msg model =
 view : Model -> Html Msg
 view model =
     div []
-        [ h1 [] [ text "Headline 1" ]
-        , DraggableListView.view dragMessage model.state model.data
+        [ h1 [] [ text "Demo of Draggable List View" ]
+        , DraggableListView.view config model.state model.data
         ]
 
 
-config : { toMsg : DraggableListView.Message -> Msg } -> DraggableListView.Config Msg
-config { toMsg } =
+config : DraggableListView.Config Msg
+config =
     DraggableListView.Config
-        { toMsg = dragMessage }
-
-
-dragMessage : DraggableListView.Message -> Msg
-dragMessage x =
-    Draggable x
+        { dragMessage = Draggable }

@@ -15,7 +15,7 @@ type alias State =
 
 type Config msg
     = Config
-        { toMsg : Message -> msg
+        { dragMessage : Message -> msg
         }
 
 
@@ -75,38 +75,33 @@ newDrag drag newY =
 -- View
 
 
-view : (Message -> msg) -> State -> List a -> Html msg
-view toMsg state list =
+view : Config msg -> State -> List a -> Html msg
+view (Config { dragMessage }) state list =
     div []
         [ toString state |> text
         , div []
-            (viewItems toMsg state list)
+            (List.indexedMap (viewItem dragMessage state) list)
         ]
 
 
-viewItems : (Message -> msg) -> State -> List a -> List (Html msg)
-viewItems toMsg state list =
-    List.indexedMap (viewItem toMsg state) list
-
-
 viewItem : (Message -> msg) -> State -> Int -> a -> Html msg
-viewItem messageDecorator state index a =
+viewItem dragMessage state index a =
     div
-        (itemEvents messageDecorator state index)
+        (itemEvents dragMessage state index)
         [ toString a |> text ]
 
 
 itemEvents : (Message -> msg) -> State -> Int -> List (Attribute msg)
-itemEvents messageDecorator state index =
+itemEvents dragMessage state index =
     List.append
         [ style Styles.listItem
-        , Pointer.onDown (pagePos >> DragStart index >> messageDecorator)
+        , Pointer.onDown (pagePos >> DragStart index >> dragMessage)
         , style [ ( "touch-action", "none" ) ]
-        , dragAt state.dragging messageDecorator
+        , dragAt state.dragging dragMessage
         , moveStyle state index
         , makingWayStyle state index
         ]
-        (dragEnd state.dragging messageDecorator)
+        (dragEnd state.dragging dragMessage)
 
 
 moveStyle : State -> Int -> Attribute msg
@@ -160,18 +155,18 @@ distanceMoved drag =
 
 
 dragAt : Bool -> (Message -> msg) -> Attribute msg
-dragAt dragging messageDecorator =
+dragAt dragging dragMessage =
     if dragging then
-        Pointer.onMove (pagePos >> DragAt >> messageDecorator)
+        Pointer.onMove (pagePos >> DragAt >> dragMessage)
     else
         style []
 
 
 dragEnd : Bool -> (Message -> msg) -> List (Attribute msg)
-dragEnd dragging messageDecorator =
+dragEnd dragging dragMessage =
     if dragging then
-        [ Pointer.onUp (pagePos >> DragEnd >> messageDecorator)
-        , Pointer.onLeave (pagePos >> DragEnd >> messageDecorator)
+        [ Pointer.onUp (pagePos >> DragEnd >> dragMessage)
+        , Pointer.onLeave (pagePos >> DragEnd >> dragMessage)
         ]
     else
         [ style [] ]

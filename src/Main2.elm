@@ -35,7 +35,7 @@ init =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "Message: " msg of
+    case msg of
         SomeMessage ->
             ( model, Cmd.none )
 
